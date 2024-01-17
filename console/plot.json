@@ -1,0 +1,12 @@
+{
+    "start": {
+        "ways": {
+            "left": "house-valley",
+            "right": "dead-gills"
+        },
+        "image": "forest",
+        "location": "start",
+        "text": ["Your adventure starts here!", "Let's go"],
+        "special" : 0
+    }
+}
