@@ -1,0 +1,119 @@
+{
+    "items": ["packet"],
+    "scenes": [
+        {
+            "name": "start",
+            "type": "choice",
+            "text": [
+                {"text": "Enter your name"}
+            ],
+            "vidgets": [
+                {
+                    "type": "entry",
+                    "id": "name",
+                    "value": "any",
+                    "minLenght": 3
+                },
+                {
+                    "type": "btn",
+                    "text": {"text": "Confirm"},
+                    "action":{
+                        "command": "RunScene",
+                        "scene": "NameCheck"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "NameCheck",
+            "type": "logic",
+            "action": [
+                {
+                    "command": "Dublicate",
+                    "from": {"dir": "entrys", "index": "name"},
+                    "to": {"dir": "local", "index": "name"}
+                },
+                {
+                    "command": "RunScene",
+                    "scene": "cross1"
+                }
+            ]
+        },
+        {
+            "name": "cross1",
+            "type": "choice",
+            "text": [
+                [{"text": "You are on the cross, "}, {"variable": "name"}],
+                {"text": "Where are you going to?"}
+            ],
+            "vidgets": [
+                {
+                    "type": "btn",
+                    "text": {"text": "Left"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "ValleyEnterance"
+                    }
+                },
+                {
+                    "type": "btn",
+                    "text": {"text": "Right"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "ValleyEnterance"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "ValleyEnterance",
+            "type": "slide",
+            "text": [{"text": "..."}],
+            "action": {
+                "command": "RunScene",
+                "scene": "HomeAndGarage"
+            }
+        },
+        {
+            "name": "HomeAndGarage",
+            "type": "choice",
+            "text": [
+                {"text": "You see a house and a garage."},
+                {"text": "Where are you going to?"}
+            ],
+            "vidgets": [
+                {   
+                    "type": "btn",
+                    "text": {"text": "Home"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "Home"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Home",
+            "type": "slide",
+            "text": [{"text": "You got \"Bag of chips\""}],
+            "action": {
+                "command": "RunScene",
+                "scene": "GetChips"
+            }
+        },
+        {
+            "name": "GetChips",
+            "type": "logic",
+            "action": [
+                {
+                    "command": "GiveItem",
+                    "item": {"Id": "packet", "count": 1}
+                },
+                {
+                    "command": "RunScene",
+                    "scene": "HomeAndGarage"
+                }
+            ]
+        }
+    ]
+}
