@@ -94,11 +94,24 @@
         },
         {
             "name": "Home",
+            "type": "slide",
+            "text": [{"text": "You got \"Bag of chips\""}],
+            "action": {
+                "command": "RunScene",
+                "scene": "GetChips"
+            }
+        },
+        {
+            "name": "GetChips",
             "type": "logic",
             "action": [
                 {
                     "command": "GiveItem",
                     "item": {"Id": "packet", "count": 1}
+                },
+                {
+                    "command": "RunScene",
+                    "scene": "HomeAndGarage"
                 }
             ]
         }

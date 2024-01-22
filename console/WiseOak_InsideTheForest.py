@@ -46,7 +46,6 @@ class Scene():
                     vidget['type'] = 'btn'
                     vidget['text'] = x['text']
                     vidget['action'] = takeAction(x['action'])
-                    self.vidgets.append(vidget)
                 elif x['type'] == 'entry':
                     vidget['type'] = 'entry'
                     vidget['id'] = x['id']
@@ -54,7 +53,7 @@ class Scene():
                     vidget['minLenght'] = x['minLenght']
                 else:
                     raise InvalidMapFormatError
-                self.vidgets += [vidget]
+                self.vidgets.append(vidget)
         elif self.type == 'logic':
             self.action = takeAction(scenedata['action'], multiple=True)
         else:
@@ -91,7 +90,7 @@ class Scene():
                             break
                     self.WorldMap.entrys[vidget['id']] = a
                     print(a, f'Written to Map.entrys.{vidget["id"]}')
-                print(f'actbind: {actbind}')
+            print(f'actbind: {actbind}')
             while 1:
                 ans = input()
                 if ans in actbind:
@@ -110,6 +109,9 @@ class Scene():
                 self.scenes[action['scene']].run()
             else:
                 print('Cannot access the scene', actions['scene'])
+        elif action['command'] == 'Dublicate':
+            fromV, toV = action['from'], action['to']
+            exec('WM.' + toV['dir'] + '["' + toV['name'] + '"] = WM.' + fromV['dir'] + '["' + fromV['name'] + '"]', {'WM': self.WorldMap})
 
 
 class AdvancedText():
