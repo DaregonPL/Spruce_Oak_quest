@@ -20,36 +20,33 @@ class _Game():
         else:
             print(f'No map named "{MapName}" found. Check maps.json')
 
-    def start(self, intro=True):
+    def start(self):
         print('\n- B U I L D I N G   A P P -')
         self.fullscreenstatus = 0
         self.root = Tk()
         #self.root.resizable(0, 0)
-        self.root.configure(bg='#000000')
         self.root.config(cursor='none')
         self.root.attributes('-topmost', 1)
         self.root.update()
         self.root.attributes('-topmost', 0)
-        self.root.focus()
         self.root.geometry('1920x1080')
+        self.root.configure(bg='#000000')
         self.FullScreenSwitch()
         self.root.bind('<F11>', lambda a: self.FullScreenSwitch())
         self.root.update()
-        #self.root.after(1000)
-        #self.videoplayer = TkinterVideo(self.root,height=1920,width=1080)
-        #self.videoplayer.load('intro.mp4')
-        #self.videoplayer.pack(expand=True, fill="both")
-        #self.videoplayer.bind("<<Loaded>>", lambda e: e.widget.config(width=1920, height=1080))
-        #self.videoplayer.bind('<<Ended>>', lambda a: self.body())
-        #self.videoplayer.play()
-        #self.root.mainloop()
-        self.body()
+        self.videoplayer = TkinterVideo(self.root,height=1920,width=1080)
+        self.videoplayer.load('intro.mp4')
+        self.videoplayer.pack(expand=True, fill="both")
+        self.videoplayer.bind("<<Loaded>>", lambda e: e.widget.config(width=1920, height=1080))
+        self.videoplayer.bind('<<Ended>>', lambda a: self.body())
+        self.videoplayer.play()
+        self.root.mainloop()
 
     def body(self):
         self.root.config(cursor='arrow')
-        #self.videoplayer.pack_forget()
-        self.root.configure(bg='#1e382d')
+        self.videoplayer.pack_forget()
         self.menubg = PhotoImage(file='images/menubg.png')
+        self.VLGM = PhotoImage(file='images/VLGmini.png')
         self.logoD = Label(self.root, image=self.menubg, bg='#1e382d')
         self.decframe = Frame(self.root, bg='#487361')
         self.logoD.place(x=0, y=0)
@@ -60,7 +57,7 @@ class _Game():
         framedestroy.destroy() if framedestroy else 0
         self.logo = PhotoImage(file='images/logo.png')
         self.coframe = Frame(self.decframe, bg='#588572')
-        logoL = Label(self.coframe, image=self.logo, bg='#588572')
+        self.logoL = Label(self.coframe, image=self.logo, bg='#588572')
         self.cobut = Frame(self.coframe, bg='#588572')
         self.GS_btn = self.menuButton(self.new_game, '  Начать игру  ', self.cobut, var=1)
         self.LD_btn = self.menuButton(self.savesc, 'Загрузить', self.cobut, var=2)
@@ -68,19 +65,62 @@ class _Game():
         self.EX_btn = Button(self.cobut, text='Выход', font=('Bahnschrift', 20, 'bold'),
                       bd=3, fg='#ff0000', bg='#400000', relief='groove', activebackground='#100000',
                       activeforeground='#7a0000', command=self.root.destroy)
+        self.EX_btn.bind('<Enter>', lambda a: self.EX_btn.config(bg='#200000'))
+        self.EX_btn.bind('<Leave>', lambda a: self.EX_btn.config(bg='#400000'))
+        self.logoVL = Button(self.coframe, image=self.VLGM, bg='#588572', bd=0, activebackground='#487361')
+        self.logoVL.bind('<Enter>', lambda a: self.logoVL.config(bg='#689984'))
+        self.logoVL.bind('<Leave>', lambda a: self.logoVL.config(bg='#588572'))
         
         self.coframe.pack(side='right', fill='y', padx=10)
-        logoL.pack(side='top', padx=10, pady=30)
+        self.logoL.pack(side='top', padx=10, pady=30)
         self.cobut.pack(side='top', padx=30, pady=30)
         self.GS_btn.pack(anchor='n', pady=5, fill='x')
         self.LD_btn.pack(anchor='n', pady=5, fill='x')
         self.ST_btn.pack(anchor='n', pady=5, fill='x')
         self.EX_btn.pack(anchor='n', pady=5, fill='x')
+        self.logoVL.pack(side='bottom', anchor='e')
         #self.world.runScene(self.mapconf['startscene'])
 
     def new_game(self):
-        self.root.config(bg='#000000')
-        self.logoD.place_forget()
+        self.matcount = 0
+        self.newimg = PhotoImage(file='images/newGame.png')
+        self.cobut.destroy()
+        self.sbut = Frame(self.coframe, bg='#487361')
+        self.logoL.config(image=self.newimg)
+        self.nameLabel = Label(self.sbut, bg='#487361', text='Введити вагша има', font=('Bahnschrift', 20, 'bold'), bd=3,
+                               fg='#00ffd5')
+        self.nameEntry = Entry(self.sbut, font=('Bahnschrift', 20, 'bold'), fg='#00ffd5', bg='#00473b', bd=3,
+                               relief='sunken')
+        self.warnL = Label(self.sbut, bg='#487361', text='', font=('Bahnschrift', 10, 'bold'),
+                               fg='#ff5900')
+        self.CM_btn = self.menuButton(self.nameValid, 'Подтвердить', self.sbut, var=2)
+        self.BK_btn = self.menuButton(lambda: self.menu(self.coframe), 'Назад', self.sbut, var=2)
+
+        self.sbut.pack(side='top', padx=30, pady=30)
+        self.nameLabel.pack(anchor='n', pady=5, fill='x')
+        self.nameEntry.pack(anchor='n', pady=5, padx=10, fill='x')
+        self.warnL.pack(anchor='n', pady=5, padx=10, fill='x')
+        self.CM_btn.pack(anchor='n', pady=5, padx=10, fill='x')
+        self.BK_btn.pack(anchor='n', pady=5, padx=10, fill='x')
+
+    def nameValid(self):
+        v = self.nameEntry.get()
+        llist = ['Нет. Нельзя использовать маты', 'Ты думаешь, что я ничего не вижу?', 'Хорош пытаться меня надурить.']
+        if self.matcount in [0, 1, 2] and len(v) >= 4:
+            self.warnL.config(text=llist[self.matcount])
+            self.matcount += 1
+        elif self.matcount == 3 and len(v) >= 4:
+            self.warnL.config(text='Или... Блин, тут действительно ничего нет(')
+            self.nameEntry.config(state='disabled', disabledforeground='#00ff00', disabledbackground='#004a00')
+            self.CM_btn.config(fg='#45ff9f', bg='#005227', activeforeground='#74fcb5', activebackground='#009949')
+            self.CM_btn.bind('<Enter>', lambda a: self.CM_btn.config(bg='#007337'))
+            self.CM_btn.bind('<Leave>', lambda a: self.CM_btn.config(bg='#005227'))
+            self.matcount += 1
+        elif self.matcount == 4 and len(v) >= 4:
+            self.world.local['name'] = v
+            self.SCprep()
+        else:
+            self.warnL.config(text='тут ничего нет')
 
     def settings(self):
         self.setimg = PhotoImage(file='images/settings.png')
@@ -88,12 +128,15 @@ class _Game():
         self.setframe = Frame(self.decframe, bg='#588572')
         logoS = Label(self.setframe, image=self.setimg, bg='#588572')
         self.setbut = Frame(self.setframe, bg='#588572')
+        self.RT_btn = self.menuButton(lambda: self.restart(),
+                                      'Перезапуск', self.setbut, var=2)
         self.BK_btn = self.menuButton(lambda: self.menu(self.setframe),
                                       'Назад', self.setbut, var=2)
 
         self.setframe.pack(side='right', fill='y', padx=10)
         logoS.pack(side='top', padx=10, pady=30)
         self.setbut.pack(side='top', padx=30, pady=30)
+        self.RT_btn.pack(anchor='n', pady=5, fill='x')
         self.BK_btn.pack(anchor='n', pady=5, fill='x')
 
     def savesc(self):
@@ -120,13 +163,33 @@ class _Game():
 
     def menuButton(self, command, text, master, var=2):
         if var == 1:
-            return Button(master, text=text, font=('Bahnschrift', 25, 'bold'),
+            btn = Button(master, text=text, font=('Bahnschrift', 25, 'bold'),
                           bd=3, fg='#4eff45', bg='#193817', relief='groove', activebackground='#193817',
                           activeforeground='#aeffab', command=command)
+            btn.bind('<Enter>', lambda a: btn.config(bg='#245221'))
+            btn.bind('<Leave>', lambda a: btn.config(bg='#193817'))
+            btn.bind('<FocusIn>', lambda a: btn.config(bg='#0000ff'))
+            btn.bind('<FocusOut>', lambda a: btn.config(bg='#193817'))
+            return btn
         if var == 2:
-            return Button(master, text=text, font=('Bahnschrift', 20, 'bold'),
+            btn = Button(master, text=text, font=('Bahnschrift', 20, 'bold'),
                           bd=3, fg='#45ffd1', bg='#193b37', relief='groove', activebackground='#193b37',
                           activeforeground='#a6fffc', command=command)
+            btn.bind('<Enter>', lambda a: btn.config(bg='#224d47'))
+            btn.bind('<Leave>', lambda a: btn.config(bg='#193b37'))
+            btn.bind('<FocusIn>', lambda a: btn.config(bg='#0000ff'))
+            btn.bind('<FocusOut>', lambda a: btn.config(bg='#193b37'))
+            return btn
+
+    def restart(self):
+        self.root.destroy()
+        self.start()
+
+    #                           -- G A M E   L A U N C H E R --
+
+    def SCprep(self):
+        self.decframe.destroy()
+        self.logoD.destroy()
 
 
 class Map():
@@ -304,7 +367,9 @@ def takeAction(actionlist, multiple=False):
             raise InvalidMapFormat
         actions.append(out)
     return actions
-strt = input('startcode: ')
-game = _Game('ITF') if not strt else _Game(strt)
+
+
+    # start
+game = _Game('ITF')
 input('s.')
-game.start(intro=False) if game.valid else print('invalid game')
+game.start()
