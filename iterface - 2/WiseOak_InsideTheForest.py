@@ -2,6 +2,7 @@ import json, os.path
 from tkinter import *
 from errors import *
 from tkVideoPlayer import TkinterVideo
+from pygame import mixer
 
 
 class _Game():
@@ -16,22 +17,26 @@ class _Game():
                 print(f'initialization map {MapName}\n')
                 self.world = Map(json.load(mapfile), self)
             self.mapconf = maps[MapName]
+            mixer.init()
             self.valid = 1
         else:
             print(f'No map named "{MapName}" found. Check maps.json')
 
     def start(self):
+        if not self.valid:
+            return 0
         print('\n- B U I L D I N G   A P P -')
         self.fullscreenstatus = 0
         self.root = Tk()
         #self.root.resizable(0, 0)
+        self.root.geometry('1920x1080')
+        self.root.configure(bg='#000000')
+        self.FullScreenSwitch()
         self.root.config(cursor='none')
         self.root.attributes('-topmost', 1)
         self.root.update()
         self.root.attributes('-topmost', 0)
-        self.root.geometry('1920x1080')
-        self.root.configure(bg='#000000')
-        self.FullScreenSwitch()
+        self.root.focus()
         self.root.bind('<F11>', lambda a: self.FullScreenSwitch())
         self.root.update()
         self.videoplayer = TkinterVideo(self.root,height=1920,width=1080)
@@ -39,18 +44,20 @@ class _Game():
         self.videoplayer.pack(expand=True, fill="both")
         self.videoplayer.bind("<<Loaded>>", lambda e: e.widget.config(width=1920, height=1080))
         self.videoplayer.bind('<<Ended>>', lambda a: self.body())
+        self.root.bind('<space>', lambda a: self.skipIntro())
         self.videoplayer.play()
         self.root.mainloop()
 
     def body(self):
         self.root.config(cursor='arrow')
-        self.videoplayer.pack_forget()
+        self.videoplayer.destroy()
         self.menubg = PhotoImage(file='images/menubg.png')
         self.VLGM = PhotoImage(file='images/VLGmini.png')
         self.logoD = Label(self.root, image=self.menubg, bg='#1e382d')
         self.decframe = Frame(self.root, bg='#487361')
         self.logoD.place(x=0, y=0)
         self.decframe.pack(side='right', fill='y')
+        self.root.unbind('<space>')
         self.menu()
 
     def menu(self, framedestroy=None):
@@ -106,21 +113,30 @@ class _Game():
     def nameValid(self):
         v = self.nameEntry.get()
         llist = ['Нет. Нельзя использовать маты', 'Ты думаешь, что я ничего не вижу?', 'Хорош пытаться меня надурить.']
-        if self.matcount in [0, 1, 2] and len(v) >= 4:
+        if not v:
+            self.warnL.config(text='тут ничего нет.')
+            self.matcount = 0
+        elif len(v) < 3:
+            self.warnL.config(text='не меньше 3х символов(')
+            self.matcount = 0
+        elif len(v) > 12:
+            self.warnL.config(text='не больше 12х символов)')
+            self.matcount = 0
+        elif self.matcount in [0, 1, 2]:
             self.warnL.config(text=llist[self.matcount])
             self.matcount += 1
-        elif self.matcount == 3 and len(v) >= 4:
+        elif self.matcount == 3:
             self.warnL.config(text='Или... Блин, тут действительно ничего нет(')
             self.nameEntry.config(state='disabled', disabledforeground='#00ff00', disabledbackground='#004a00')
             self.CM_btn.config(fg='#45ff9f', bg='#005227', activeforeground='#74fcb5', activebackground='#009949')
             self.CM_btn.bind('<Enter>', lambda a: self.CM_btn.config(bg='#007337'))
             self.CM_btn.bind('<Leave>', lambda a: self.CM_btn.config(bg='#005227'))
             self.matcount += 1
-        elif self.matcount == 4 and len(v) >= 4:
+        elif self.matcount == 4:
             self.world.local['name'] = v
             self.SCprep()
         else:
-            self.warnL.config(text='тут ничего нет')
+            self.warnL.config(text='непон')
 
     def settings(self):
         self.setimg = PhotoImage(file='images/settings.png')
@@ -185,11 +201,62 @@ class _Game():
         self.root.destroy()
         self.start()
 
+    def skipIntro(self):
+        self.videoplayer.stop()
+        self.body()
+
+    def putpart(self, vidgetId, text, clear=True):
+        self.c.itemconfig(vidgetId, text='') if clear else 0
+        if text:
+            for x in text:
+                self.c.insert(vidgetId, 'end', x)
+                self.root.after(200)
+                self.root.update()
+        else:
+            self.c.insert(vidgetId, 'end', 'NO TEXT')
+
+    def TextOut(self, vidgetId, button, command):
+        self.root.unbind(button)
+        txt = self.stk.getNext()
+        if txt:
+            self.putpart(vidgetId, txt)
+            self.root.bind(button, lambda a: self.TextOut(vidgetId, button, command))
+        else:
+            command()
+
     #                           -- G A M E   L A U N C H E R --
 
     def SCprep(self):
         self.decframe.destroy()
         self.logoD.destroy()
+        self.stk = Streak()
+        self.c = Canvas(self.root, bg='black', height=1080, width=1920, highlightthickness=0)
+        self.c.pack()
+        self.stL = self.c.create_text(self.root.winfo_width() // 2, self.root.winfo_height() // 2,
+                                      text='', font=('Courier', 40, 'bold'), fill='white') #Bahnschrift
+        self.stk.load([self.world.local['name'] + '?', 'Слышишь?', 'Уже пора...', 'вставай . . .'])
+        self.root.bind('<Button-1>', lambda a: self.TextOut(self.stL, '<Button-1>', self.SCfade))
+    def SCfade(self):
+        for x in range(1, 256):
+            color = hex(x)[2:]
+            col = '#' + color * 3 if len(str(color)) == 2 else '#' + ('0' + color) * 3
+            self.c.config(self.c, bg=col)
+            self.root.after(3)
+            self.root.update()
+        self.c.config(self.c, bg='black')
+        self.c.delete(self.stL)
+
+
+class Streak():
+    def __init__(self):
+        self.streak = []
+    def load(self, text):
+        self.streak += text
+    def getNext(self):
+        if self.streak:
+            return self.streak.pop(0)
+        else:
+            return None
 
 
 class Map():
