@@ -1,0 +1,150 @@
+{
+    "items": ["48 rubles", "packet"],
+    "scenes": [
+        {
+            "name": "start",
+            "type": "logic",
+            "action": [
+                {
+                    "command": "RunScene",
+                    "scene": "cross1"
+                }
+            ]
+        },
+        {
+            "name": "cross1",
+            "type": "choice",
+            "text": [
+                [{"text": "You are on the cross, "}, {"variable": "name"}],
+                {"text": "Where are you going to?"}
+            ],
+            "vidgets": [
+                {
+                    "type": "btn",
+                    "text": {"text": "Left"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "ValleyEnterance"
+                    }
+                },
+                {
+                    "type": "btn",
+                    "text": {"text": "Right"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "ValleyEnterance"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "ValleyEnterance",
+            "type": "choice",
+            "text": [{"text": "..."}],
+            "vidgets": [
+                {
+                    "type": "btn",
+                    "text": {"text": "Forward"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "HomeAndGarage"
+                    }
+                },
+                {
+                    "type": "btn",
+                    "text": {"text": "Back"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "cross1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "HomeAndGarage",
+            "type": "choice",
+            "text": [
+                {"text": "You see a house and a garage."},
+                {"text": "Where are you going to?"}
+            ],
+            "vidgets": [
+                {   
+                    "type": "btn",
+                    "text": {"text": "Home"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "Home"
+                    }
+                },
+                {   
+                    "type": "btn",
+                    "text": {"text": "Garage"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "Garage"
+                    }
+                },
+                {   
+                    "type": "btn",
+                    "text": {"text": "Back"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "ValleyEnterance"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Home",
+            "type": "slide",
+            "text": [{"text": "You got \"48 rubles\""}],
+            "action": {
+                "command": "RunScene",
+                "scene": "Get48Rub"
+            }
+        },
+        {
+            "name": "GetChips",
+            "type": "logic",
+            "action": [
+                {
+                    "command": "GiveItem",
+                    "item": {"Id": "packet", "count": 1}
+                },
+                {
+                    "command": "RunScene",
+                    "scene": "HomeAndGarage"
+                }
+            ]
+        },
+        {
+            "name": "Get48Rub",
+            "type": "logic",
+            "action": [
+                {
+                    "command": "GiveItem",
+                    "item": {"Id": "48 rubles", "count": 1}
+                },
+                {
+                    "command": "RunScene",
+                    "scene": "HomeAndGarage"
+                }
+            ]
+        },
+        {
+            "name": "Garage",
+            "type": "slide",
+            "text": [
+                {"text": "This looks like a thing that should recycle some chips packets."},
+                {"text": "But based on how it looks I can say that this machine wasn't working for years."},
+                {"text": "You see a sign on the machine."},
+                {"text": "You look closer:"},
+                [{"text": "\""}, {"variable": "name"}, {"text": "\"."}]
+            ],
+            "action": {
+                "command": "RunScene",
+                "scene": "GetChips"
+            }
+        }
+    ]
+}
