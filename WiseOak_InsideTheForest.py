@@ -253,12 +253,14 @@ class _Game():
         self.ScenePrepare()
     def ScenePrepare(self):
         self.root.config(bg='#000000')
+        self.bgi = Label(self.root, bg='black')
         self.ofi = Frame(self.root, bg='#614929')
         self.oi = Label(self.ofi, text='', fg='white', bg='#614929',
                                      font=('Bahnschrift', 30, 'bold'))
         self.scnamel = Label(self.ofi, text='', bg='#614929', fg='#614929')
         self.scnamel.bind('<Enter>', lambda a: self.scnamel.config(bg='white', fg='black'))
         self.scnamel.bind('<Leave>', lambda a: self.scnamel.config(bg='#614929', fg='#614929'))
+        self.bgi.place(relx=0.5, rely=0.5, anchor='center')
         self.ofi.pack(side='bottom', fill='x')
         self.scnamel.pack(side='bottom', anchor='e')
         self.oi.pack(pady=30, fill='x')
@@ -311,10 +313,10 @@ class Scene():
         if self.type == 'slide':
             self.text = scenedata['text']
             self.action = takeAction(scenedata['action'])
-            #self.bg = scenedata['image']
+            self.bg = scenedata['image'] if 'image' in scenedata else 0
         elif self.type == 'choice':
             self.text = scenedata['text']
-            #self.bg = scenedata['image']
+            self.bg = scenedata['image'] if 'image' in scenedata else 0
             self.vidgets = []
             for x in scenedata['vidgets']:
                 vidget = {}
@@ -349,11 +351,17 @@ class Scene():
             for textInfo in self.text:
                 txt = AdvancedText(textInfo, self.WorldMap)
                 self.game.stk.load([txt])
+            if self.bg:
+                self.bgimg = PhotoImage(file=f'maps/images/{self.game.mapconf["imagefolder"]}/{self.bg}.png')
+                self.game.bgi.config(image=self.bgimg)
             self.game.TextOut(self.game.oi, '<Button-1>', self.afterText)
         elif self.type == 'choice':
             for textInfo in self.text:
                 txt = AdvancedText(textInfo, self.WorldMap)
                 self.game.stk.load([txt])
+            if self.bg:
+                self.bgimg = PhotoImage(file=f'maps/images/{self.game.mapconf["imagefolder"]}/{self.bg}.png')
+                self.game.bgi.config(image=self.bgimg)
             self.game.TextOut(self.game.oi, '<Button-1>', self.afterText)
         elif self.type == 'logic':
             self.afterText()
