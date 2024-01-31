@@ -1,0 +1,78 @@
+                - - - - S c e n e - - - -
+{
+"name": "(SceneName)",
+"type": "(SceneType)",
+...arguments...
+}
+
+
+  -=| Scene Types |=-
+ - slide -
+ Type of scene to output text.
+:arguments:
+
+...,
+"image": "(ImageName)",
+"text": [(TextObjects)],
+"action": (Action)
+
+
+ - logic -
+ Type of scene to run multiple commands
+:arguments:
+
+...,
+"action": [(Actions)]
+
+
+ - choice -
+ Type of scene to let player make a choice on buttons
+:arguments:
+
+...,
+"image": "(ImageName)",
+"vidgets": [{"type": (VidgetType),
+             ...arguments...}]
+
+  -=| Vidget Types |=-
+ - btn -
+ Button
+:arguments:
+
+...,
+"text": (TextObject),
+"action": (Action)
+
+
+ - entry -
+ Entry
+:arguments:
+
+...,
+"id": "(NameOfVariableWhereEntryValueSavas)",
+"value": "int" / "any",
+"confirmButtonText": (TextObject)
+"minLenght": (MinimumLenght),
+"maxLenght": (MaximumLenght)
+
+
+
+ - = | Text Object | = -
+{
+"text": "(Text)",
+"color": "(HTML color)"
+}
+
+- = | Action | = -
+{
+"command": "(ActionType)",
+...arguments...
+}
+
+  -=| Action Types |=-
+ - RunScene -
+ Run a scene
+:arguments:
+
+...,
+"scene": "(SceneName)"

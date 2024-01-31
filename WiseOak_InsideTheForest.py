@@ -330,7 +330,9 @@ class Scene():
                     vidget['type'] = 'entry'
                     vidget['id'] = x['id']
                     vidget['value'] = x['value']
+                    vidget['cntext'] = x['confirmButtonText']
                     vidget['minLenght'] = x['minLenght']
+                    vidget['maxLenght'] = x['maxLenght']
                 else:
                     raise InvalidMapFormatError
                 self.vidgets.append(vidget)
@@ -382,9 +384,11 @@ class Scene():
                 elif vidget['type'] == 'entry':
                     while True:
                         a = input('entry>')
-                        if vidget['value'] == 'int' and a.isdigit() and len(a) >= vidget['minLenght']:
+                        if vidget['value'] == 'int' and a.isdigit() and \
+                                    vidget['maxLenght'] > len(a) > vidget['minLenght']:
                             break
-                        elif vidget['value'] == 'any' and len(a) >= vidget['minLenght']:
+                        elif vidget['value'] == 'any' and \
+                                    vidget['maxLenght'] > len(a) > vidget['minLenght']:
                             break
                     self.WorldMap.entrys[vidget['id']] = a
                     print(a, f'Written to Map.entrys.{vidget["id"]}')
@@ -420,6 +424,12 @@ class Scene():
             fromV, toV = action['from'], action['to']
             exec('WM.' + toV['dir'] + '["' + toV['name'] + '"] = WM.' +
                  fromV['dir'] + '["' + fromV['name'] + '"]', {'WM': self.WorldMap})
+        elif action['command'] == 'Write':
+            toV, valV = action['to'], action['value']
+            exec('WM.' + toV['dir'] + '["' + toV['name'] + '"] = "' +
+                 action['value'] + '"', {'WM': self.WorldMap})
+        elif action['command'] == 'If':
+            pass
 
 
 class AdvancedText():
@@ -452,7 +462,7 @@ class AdvancedText():
 
 
 def takeAction(actionlist, multiple=False):
-    """Takes a dict with correct elements. Returns edited dict"""
+    """Takes a dict with correct elements. Returns edited list"""
     if not multiple:
         actionlist = [actionlist]
     actions = []
@@ -463,7 +473,7 @@ def takeAction(actionlist, multiple=False):
             out['scene'] = action['scene']
         elif action['command'] == 'GiveItem':
             out['command'] = 'GiveItem'
-            out['item'] = {'Id': action['item']['Id'], 'count': action['item']['count']}
+            out['item'] = {'id': action['item']['Id'], 'count': action['item']['count']}
         elif action['command'] == 'RemoveItem':
             out['command'] = 'RemoveItem'
             out['item'] = {'Id': action['item']['Id'], 'count': action['item']['count']}
@@ -471,6 +481,17 @@ def takeAction(actionlist, multiple=False):
             out['command'] = 'Dublicate'
             out['from'] = {'dir': action['from']['dir'], 'name': action['from']['index']}
             out['to'] = {'dir': action['to']['dir'], 'name': action['to']['index']}
+        elif action['command'] == 'Write':
+            out['command'] = 'Write'
+            out['to'] = {'dir': action['to']['dir'], 'name': action['to']['index']}
+            out['value'] = action['value']
+        elif action['command'] == 'If':
+            out['command'] = 'if'
+            out['check'] = action['check']  # {"value": "MustHave", "item": {"id": "(...)", "count": 1}}
+            out['true'] = takeAction(action['true'])
+            out['false'] = takeAction(action['false'])
+        elif action['command'] == '0':
+            out['command'] = ''
         else:
             raise InvalidMapFormat
         actions.append(out)
