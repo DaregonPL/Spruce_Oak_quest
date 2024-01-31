@@ -30,6 +30,9 @@ class _Game():
         #self.root.resizable(0, 0)
         self.root.geometry('1920x1080')
         self.root.configure(bg='#000000')
+        self.iconphoto = PhotoImage(file='images/icon.png')
+        self.root.call('wm', 'iconphoto', self.root._w, self.iconphoto)
+        self.root.title('Stupid Oak')
         self.FullScreenSwitch()
         self.root.config(cursor='none')
         self.root.attributes('-topmost', 1)
@@ -250,21 +253,24 @@ class _Game():
         #    self.root.update()
         self.stL.destroy()
         #self.root.after(1000)
-        self.ScenePrepare()
-    def ScenePrepare(self):
+        self.Continue(self.mapconf['startscene'])
+    def Continue(self, scene_id):
         self.root.config(bg='#000000')
         self.bgi = Label(self.root, bg='black')
-        self.ofi = Frame(self.root, bg='#614929')
+        self.dofi = Frame(self.root, bg='#45341e')
+        self.ofi = Frame(self.dofi, bg='#614929')
         self.oi = Label(self.ofi, text='', fg='white', bg='#614929',
-                                     font=('Bahnschrift', 30, 'bold'))
+                                     font=('Bahnschrift', 20, 'bold'))
         self.scnamel = Label(self.ofi, text='', bg='#614929', fg='#614929')
         self.scnamel.bind('<Enter>', lambda a: self.scnamel.config(bg='white', fg='black'))
         self.scnamel.bind('<Leave>', lambda a: self.scnamel.config(bg='#614929', fg='#614929'))
         self.bgi.place(relx=0.5, rely=0.5, anchor='center')
-        self.ofi.pack(side='bottom', fill='x')
+        self.dofi.pack(side='bottom', fill='x')
+        self.ofi.pack(side='bottom', fill='x', pady=5, padx=5)
         self.scnamel.pack(side='bottom', anchor='e')
         self.oi.pack(pady=30, fill='x')
-        self.world.runScene(self.mapconf['startscene'])
+        self.world.runScene(scene_id)
+    
 
 
 class Streak():
@@ -282,6 +288,8 @@ class Streak():
 class Map():
     def __init__(self, worldmap, game):
         self.items = worldmap['items']
+        self.inventory = ItemPack()
+        self.inventory.fill(self.items)
         self.scenes = {}
         self.entrys = {}
         self.local = {}
@@ -429,8 +437,45 @@ class Scene():
             exec('WM.' + toV['dir'] + '["' + toV['name'] + '"] = "' +
                  action['value'] + '"', {'WM': self.WorldMap})
         elif action['command'] == 'If':
-            pass
+            print(action['check'])
 
+
+class Item():
+    def __init__(self, Id, count):
+        self.id = Id
+        self.count = count
+    def pickup(self, count):
+        self.count += count
+    def clear(self):
+        self.count = 0
+    def delete(self, count):
+        self.count -= count
+
+class ItemPack():
+    def __init__(self):
+        self.items = []
+    def add(self, item, addIfExist=True):
+        if type(item) != Item:
+            print(f'WrongType: {item} is not Item')
+            return 0
+        if addIfExist and self.has(item.id):
+            self.getItem(item.id).pickup(item.count)
+        elif not addIfExist and self.has(item.id):
+            self.items[self.items.index(getItem(item.id))]
+        else:
+            self.items.append(item)
+    def getCount(self, Id):
+        return self.getItem(Id).count
+    def getItem(self, Id):
+        for x in self.items:
+            if x.id == Id:
+                return x
+        return 0
+    def has(self, Id):
+        return True if self.getItem(Id) else False
+    def fill(self, itemsIdList):
+        for x in itemsIdList:
+            self.add(Item(x, 0))
 
 class AdvancedText():
     def __init__(self, textobject, worldmap):
@@ -487,7 +532,7 @@ def takeAction(actionlist, multiple=False):
             out['value'] = action['value']
         elif action['command'] == 'If':
             out['command'] = 'if'
-            out['check'] = action['check']  # {"value": "MustHave", "item": {"id": "(...)", "count": 1}}
+            out['check'] = action['check']  # {"value": "HaveItem", "item": {"id": "(...)", "count": 1}}
             out['true'] = takeAction(action['true'])
             out['false'] = takeAction(action['false'])
         elif action['command'] == '0':
@@ -500,5 +545,4 @@ def takeAction(actionlist, multiple=False):
 
     # start
 game = _Game('ITF')
-input('s.')
-game.start()
+game.start() if input('s.') != 'c' else 0

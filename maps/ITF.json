@@ -41,7 +41,8 @@
         {
             "name": "ValleyEnterance",
             "type": "choice",
-            "text": [{"text": "..."}],
+            "image": "valley",
+            "text": [{"text": "You are on the valley."}],
             "vidgets": [
                 {
                     "type": "btn",
@@ -64,6 +65,7 @@
         {
             "name": "HomeAndGarage",
             "type": "choice",
+            "image": "house",
             "text": [
                 {"text": "You see a house and a garage."},
                 {"text": "Where are you going to?"}
@@ -71,7 +73,7 @@
             "vidgets": [
                 {   
                     "type": "btn",
-                    "text": {"text": "Home"},
+                    "text": {"text": "House"},
                     "action": {
                         "command": "RunScene",
                         "scene": "Home"
