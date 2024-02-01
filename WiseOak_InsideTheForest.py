@@ -158,8 +158,7 @@ class _Game():
             self.matcount += 1
         elif self.matcount == 4:
             self.world.local['name'] = v
-            #self.SCprep()
-            self.StartJourney(self.world.current)
+            self.SCprep()
         else:
             self.warnL.config(text='непон')
 
