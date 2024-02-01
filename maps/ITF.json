@@ -1,5 +1,5 @@
 {
-    "items": ["48 rubles", "packet"],
+    "items": ["48 rubles", "packet", "SkullOnStick"],
     "scenes": [
         {
             "name": "start",
@@ -33,7 +33,7 @@
                     "text": {"text": "Right"},
                     "action": {
                         "command": "RunScene",
-                        "scene": "ValleyEnterance"
+                        "scene": "DeadLandEnter"
                     }
                 }
             ]
@@ -111,8 +111,22 @@
             "type": "logic",
             "action": [
                 {
-                    "command": "GiveItem",
-                    "item": {"Id": "packet", "count": 1}
+                    "command": "If",
+                    "check": {"type": "HaveItem", "item": {"Id": "packet", "count": 0}},
+                    "true":[
+                        {
+                        "command": "GiveItem",
+                        "item": {"Id": "packet", "count": 1}
+                        }, 
+                        {
+                            "command": "Say",
+                            "text": {"text": "You've got a packet of chips"}
+                        }
+                    ],
+                    "false": [{
+                        "command": "Say",
+                        "text": {"text": "It's empty"}
+                    }]
                 },
                 {
                     "command": "RunScene",
@@ -125,8 +139,22 @@
             "type": "logic",
             "action": [
                 {
-                    "command": "GiveItem",
-                    "item": {"Id": "48 rubles", "count": 1}
+                    "command": "If",
+                    "check": {"type": "HaveItem", "item": {"Id": "48 rubles", "count": 0}},
+                    "true":[
+                        {
+                        "command": "GiveItem",
+                        "item": {"Id": "48 rubles", "count": 1}
+                        }, 
+                        {
+                            "command": "Say",
+                            "text": {"text": "You've got 48 rubles"}
+                        }
+                    ],
+                    "false": [{
+                        "command": "Say",
+                        "text": {"text": "You can't find anything else in this house("}
+                    }]
                 },
                 {
                     "command": "RunScene",
@@ -142,12 +170,135 @@
                 {"text": "But based on how it looks I can say that this machine wasn't working for years."},
                 {"text": "You see a sign on the machine."},
                 {"text": "You look closer:"},
-                [{"text": "\""}, {"variable": "name"}, {"text": "\"."}]
+                [{"text": "\""}, {"variable": "name"}, {"text": "\"."}],
+                {"text": "Anyway I've decided to look what is inside"}
             ],
             "action": {
                 "command": "RunScene",
                 "scene": "GetChips"
             }
+        },
+        {
+            "name": "DeadLandEnter",
+            "type": "choice", 
+            "text": [{"text": "Here is much colder than on the cross."}, {"text": "This place is makin' me scered."}],
+            "image": "deadlands",
+            "vidgets": [
+                {
+                    "type": "btn",
+                    "text": {"text": "Forward"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "FightPlain1"
+                    }
+                },
+                {
+                    "type": "btn",
+                    "text": {"text": "Left"}, 
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "SkullRoom"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "SkullRoom",
+            "type": "slide",
+            "text": [
+                {"text": "I've came to a small piece of land."},
+                {"text": "Something is on the floor."},
+                {"text": "I look closer"}
+            ],
+            "action": {
+                "command": "RunScene", 
+                "scene": "GetSkull"
+            }
+        },
+        {
+            "name": "GetSkull",
+            "type": "logic",
+            "action": [
+                {
+                    "command": "If",
+                    "check": {"type": "HaveItem", "item": {"Id": "SkullOnStick", "count": 0}},
+                    "true": [
+                        {
+                            "command": "GiveItem",
+                            "item": {"Id": "SkullOnStick", "count": 1}
+                        },
+                        {
+                            "command": "Say",
+                            "text": {"text": "It's glowing!"}
+                        },
+                        {
+                            "command": "Say",
+                            "text": {"text": "You've got the Skull on stick"}
+                        }
+                    ],
+                    "false": [
+                        {
+                            "command": "Say",
+                            "text": {"text": "It's just couple of leaves"}
+                        }
+                    ]
+                },
+                {
+                    "command": "RunScene",
+                    "scene": "DeadLandEnter"
+                }
+            ]
+        },
+        {
+            "name": "FightPlain1",
+            "type": "slide",
+            "image": "tombstones",
+            "text": [
+                {"text": "I'm standing on a field for battles"},
+                {"text": "This field has a lot of tombstones"},
+                {"text": "I'm not gonna stay here."}
+            ],
+            "action": {"command": "RunScene", "scene": "cross2"}
+        },
+        {
+            "name": "cross2",
+            "type": "choice",
+            "image": "coldforest",
+            "text": {"text": "I see a cave and the bunker. Where should I go?"},
+            "vidgets": [
+                {
+                    "type": "btn",
+                    "text": {"text": "To the cave"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "locked"
+                    }
+                },
+                {
+                    "type": "btn",
+                    "text": {"text": "To the bunker"},
+                    "action": {
+                        "command": "RunScene",
+                        "scene": "Pass the game"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "locked",
+            "type": "slide",
+            "text": [
+                {"text": "Can't go there"},
+                {"text": "The invisible wall stops me."},
+                {"text": "DaregonPL said he'll fix it soon"}
+            ],
+            "action": {"command": "RunScene", "scene": "cross2"}
+        },
+        {
+            "name": "Pass the game",
+            "type": "slide",
+            "text": {"text": "You've completed the game"},
+            "action": {"command": "0"}
         }
     ]
 }
