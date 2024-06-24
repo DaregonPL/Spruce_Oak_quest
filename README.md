@@ -1,5 +1,7 @@
-Wise Oak: Inside The Forest
-*should be a text quest
+[![Icon](./icon.png)](https://www.youtube.com)
+
+# **Wise Oak**: Inside The Forest
+~~should be a text quest~~
 
 required libraries are in required.txt
 google how to install pip libraries
